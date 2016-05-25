@@ -6,17 +6,17 @@ import telnetlib
 
 class Ahorcado:
 	def addWordToDB(self, word, db):
+		word = word.replace("\r", "")
 		addWord = db.words.insert_one({"word": word})
-		print(word)
+		# print(word)
 
-	def sayLetter(self, preWord, pastLetters):
-		client = MongoClient()
-		db = client.ahorcado
+	def sayLetter(self, preWord, pastLetters, db):
+		#print("Hola")
 		regx = re.compile("^" + preWord + "$", re.IGNORECASE)
 		allWords = db.words.find({"word": regx})
 		letterCounter = {}
 		for document in allWords:
-			#print(document["word"] + " : "+ str(len(document["word"])))
+			# print(document["word"] + " : "+ str(len(document["word"])))
 			lettersInWord = list(set(list(document["word"])))
 			for letter in lettersInWord:
 				if not letter in pastLetters:
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 	#updateDB = input("Update DB (y/n) :")
 	updating = False
 	while(updating):
-		if (updateDB == "y"):
+		if (False):
 			f = open('words.txt', 'r')
 			words = [line.replace('\n', '') for line in f]
 			client = MongoClient()
@@ -64,6 +64,8 @@ if __name__ == "__main__":
 
 	letters = ""
 	screen = b""
+	client = MongoClient()
+	db = client.ahorcado
 	while (playing):
 		
 		try:
@@ -105,9 +107,9 @@ if __name__ == "__main__":
 			else:
 				if (len(letters) != 0):
 					preWord = preWord.replace("." , "[^" + letters + "]")
-				nextLetter = Ahorcado().sayLetter(preWord, letters)
+				nextLetter = Ahorcado().sayLetter(preWord, letters, db)
 				letters += nextLetter
-				#print(letters)
+				print(letters)
 
 				tn.write((nextLetter+"\n").encode('ascii'))
 				time.sleep(0.1)
